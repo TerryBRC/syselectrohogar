@@ -8,7 +8,7 @@ body {
 
 /* Navigation */
 .navbar {
-    background: linear-gradient(135deg, 
+    background: linear-gradient(135deg,
         #ffd8d8 0%,
         #4a9d4a 25%, /* verde */
         #e63946 50%, /* rojo */
@@ -151,9 +151,6 @@ body {
     padding: 1rem;
 }
 
-.dashboard-container {
-    padding: 2rem;
-}
 
 .dashboard-cards {
     display: grid;
