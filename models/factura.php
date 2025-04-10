@@ -26,54 +26,40 @@ class Factura {
 
     public function create($data) {
         try {
-            $query = "CALL sp_CreateInvoice(:numeroSAP, :nombreCompleto, :userId)";
+            $query = "CALL sp_CreateInvoice(:numeroFactura, :tipoPago, :telefono, :numeroSAP, :nombreCompleto, :userId)";
             
             $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':numeroFactura', $data['numeroFactura']);
+            $stmt->bindParam(':tipoPago', $data['tipoPago']);
+            $stmt->bindParam(':telefono', $data['telefono']);
             $stmt->bindParam(':numeroSAP', $data['numeroSAP']);
             $stmt->bindParam(':nombreCompleto', $data['nombreCliente']);
             $stmt->bindParam(':userId', $_SESSION['user_id']);
             
-            return $stmt->execute();
+            $stmt->execute();
+            
+            // Get the result from the stored procedure
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$result || !isset($result['ID_Factura'])) {
+                throw new Exception('No se pudo obtener el ID de la factura');
+            }
+            
+            return $result['ID_Factura'];
         } catch (PDOException $e) {
             error_log("Error creating invoice: " . $e->getMessage());
-            return false;
+            throw new Exception('Error al crear la factura: ' . $e->getMessage());
         }
     }
 
-    public function addDetail($invoiceId, $productId, $quantity, $price) {
-        $query = "EXEC sp_AddInvoiceDetail :invoiceId, :productId, :quantity, :price";
+    public function addDetail($invoiceId, $productId, $descuento, $quantity, $price) {
         try {
-            $this->conn->beginTransaction();
-        
-            // Call sp_CreateInvoice stored procedure
-            $query = "EXEC sp_CreateInvoice @NumeroSAP = ?, @NombreCliente = ?, @Total = ?";
+            $query = "CALL sp_AddInvoiceDetail(?, ?, ?, ?, ?)";
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([
-                $data['numeroSAP'],
-                $data['nombreCliente'],
-                $data['total']
-            ]);
-            
-            $facturaId = $this->conn->lastInsertId();
-        
-            // Add invoice details using sp_AddInvoiceDetail
-            foreach ($data['productos'] as $producto) {
-                $query = "EXEC sp_AddInvoiceDetail @ID_Factura = ?, @ID_Producto = ?, @Cantidad = ?, @PrecioUnitario = ?";
-                $stmt = $this->conn->prepare($query);
-                $stmt->execute([
-                    $facturaId,
-                    $producto['id'],
-                    $producto['cantidad'],
-                    $producto['precio']
-                ]);
-            }
-
-            $this->conn->commit();
-            return true;
+            return $stmt->execute([$invoiceId, $productId, $descuento, $quantity, $price]);
         } catch (PDOException $e) {
-            $this->conn->rollBack();
-            error_log("Error creating invoice: " . $e->getMessage());
-            return false;
+            error_log("Error adding invoice detail: " . $e->getMessage());
+            throw $e;
         }
     }
 

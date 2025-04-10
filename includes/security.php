@@ -5,8 +5,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 function checkSession() {
     if (!isset($_SESSION['user_id'])) {
-        header("Location: ../index.php");
-        exit();
+        header('Location: ../index.php');
+        exit;
     }
 }
 

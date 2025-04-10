@@ -3,173 +3,229 @@ const modal = document.getElementById('facturaModal');
 const detalleModal = document.getElementById('detalleModal');
 const closeBtns = document.getElementsByClassName('close');
 const facturaForm = document.getElementById('facturaForm');
+const productoModal = document.getElementById('productoModal');
+const addProductBtn = document.getElementById('addProductBtn');
+const productosTableBody = document.getElementById('productosTableBody');
+const totalFacturaElement = document.getElementById('totalFactura');
+const productosSectionTitle = document.querySelector('.products-section h3');
 
-// Event listeners
+let productosSeleccionados = [];
+const MAX_PRODUCTOS = 10;
+
+// Function to hide a modal
+function hideModalElement(modalElement) {
+    if (modalElement) {
+        modalElement.style.display = 'none';
+    }
+}
+
+// Function to show a modal
+function showModalElement(modalElement) {
+    if (modalElement) {
+        modalElement.style.display = 'block';
+    }
+}
+
+// Event listeners for closing modals
 Array.from(closeBtns).forEach(btn => {
     btn.onclick = function() {
-        modal.style.display = 'none';
-        detalleModal.style.display = 'none';
+        hideModalElement(modal);
+        hideModalElement(detalleModal);
+        hideModalElement(productoModal);
     }
 });
 
 window.onclick = (event) => {
-    if (event.target == modal) modal.style.display = 'none';
-    if (event.target == detalleModal) detalleModal.style.display = 'none';
+    if (event.target == modal) hideModalElement(modal);
+    if (event.target == detalleModal) hideModalElement(detalleModal);
+    if (event.target == productoModal) hideModalElement(productoModal);
 };
 
-facturaForm.onsubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(facturaForm);
-    
-    // Replace alert() calls with showNotification()
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        hideModalElement(modal);
+        hideModalElement(detalleModal);
+        hideModalElement(productoModal);
+    }
+});
+
+// Event listener for form submission
+facturaForm.onsubmit = guardarFactura;
+
+function showFacturaModal() {
+    showModalElement(modal);
+    document.getElementById('facturaForm').reset();
+    document.getElementById('productosRows').innerHTML = '';
+    // The previous logic to add a default product row is removed
+    // as the new UI uses a separate "Add Product" button.
+}
+
+async function loadProductOptions() {
     try {
+        const response = await fetch('../controllers/producto_controller.php?action=list');
+        const result = await response.json();
+        
+        const select = document.getElementById('producto');
+        select.innerHTML = '<option value="">Seleccione un producto</option>';
+        
+        if (!result.success || !result.products) {
+            throw new Error(result.message || 'Error al cargar productos');
+        }
+        
+        result.products.forEach(product => {
+            const precio = parseFloat(product.Precio).toFixed(2);
+            select.innerHTML += `
+                <option value="${product.ID_Producto}" 
+                        data-precio="${product.Precio}"
+                        data-stock="${product.Stock}">
+                    ${product.Nombre} - $${precio}
+                </option>
+            `;
+        });
+        
+        select.addEventListener('change', updatePrecio);
+    } catch (error) {
+        console.error('Error loading products:', error);
+        showNotification('Error al cargar productos: ' + (error.message || 'Error desconocido'), 'error');
+    }
+}
+
+function agregarProductoAFactura() {
+    const productoSelect = document.getElementById('producto');
+    const cantidad = parseInt(document.getElementById('cantidad').value);
+    const precio = parseFloat(document.getElementById('precio').value);
+    const descuento = parseFloat(document.getElementById('descuento').value) || 0;
+    
+    if (!productoSelect.value || !cantidad || !precio) {
+        showNotification('Por favor complete todos los campos', 'error');
+        return;
+    }
+
+    // Validación de stock
+    const stockDisponible = parseInt(productoSelect.options[productoSelect.selectedIndex].dataset.stock);
+    const existingProductIndex = productosSeleccionados.findIndex(p => p.id === productoSelect.value);
+    const totalCantidad = existingProductIndex !== -1 ? 
+        productosSeleccionados[existingProductIndex].cantidad + cantidad : 
+        cantidad;
+
+    if (stockDisponible === 0) {
+        showNotification('Producto sin stock disponible', 'error');
+        return;
+    }
+
+    if (totalCantidad > stockDisponible) {
+        showNotification(`Stock insuficiente. Stock disponible: ${stockDisponible}`, 'error');
+        return;
+    }
+    
+    if (existingProductIndex !== -1) {
+        // Update existing product
+        productosSeleccionados[existingProductIndex].cantidad = totalCantidad;
+        productosSeleccionados[existingProductIndex].descuento += descuento;
+        productosSeleccionados[existingProductIndex].subtotal = 
+            (totalCantidad * precio) - productosSeleccionados[existingProductIndex].descuento;
+    } else {
+        // Add new product
+        productosSeleccionados.push({
+            id: productoSelect.value,
+            nombre: productoSelect.options[productoSelect.selectedIndex].text.split(' (Stock')[0],
+            cantidad: cantidad,
+            precio: precio,
+            descuento: descuento,
+            subtotal: (cantidad * precio) - descuento
+        });
+    }
+    
+    actualizarTablaProductos();
+    hideProductModal();
+}
+
+function actualizarTablaProductos() {
+    let html = '';
+    let total = 0;
+
+    productosSeleccionados.forEach((producto, index) => {
+        html += `
+            <tr>
+                <td>${producto.nombre}</td>
+                <td>${producto.cantidad}</td>
+                <td>$${producto.precio.toFixed(2)}</td>
+                <td>$${producto.descuento.toFixed(2)}</td>
+                <td>$${producto.subtotal.toFixed(2)}</td>
+                <td>
+                    <button type="button" class="btn-danger" onclick="eliminarProducto(${index})">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </td>
+            </tr>
+        `;
+        total += producto.subtotal;
+    });
+
+    productosTableBody.innerHTML = html;
+    totalFacturaElement.textContent = `$${total.toFixed(2)}`;
+
+    const productCount = productosSeleccionados.length;
+    addProductBtn.disabled = productCount >= MAX_PRODUCTOS;
+    productosSectionTitle.textContent = `Productos (${productCount}/10 artículos)`;
+}
+
+function eliminarProducto(index) {
+    productosSeleccionados.splice(index, 1);
+    actualizarTablaProductos();
+}
+
+async function guardarFactura(e) {
+    e.preventDefault();
+
+    try {
+        if (productosSeleccionados.length === 0) {
+            showNotification('Agregue al menos un producto', 'warning');
+            return;
+        }
+
+        const numeroFactura = document.getElementById('numeroFactura').value.trim();
+        const tipoPago = document.getElementById('tipoPago').value.trim();
+        const telefono = document.getElementById('telefono').value.trim();
+        const numeroSAP = document.getElementById('numeroSAP').value.trim();
+        const nombreCliente = document.getElementById('nombreCliente').value.trim();
+
+        if (!numeroFactura || !tipoPago || !telefono || !numeroSAP || !nombreCliente) {
+            showNotification('Por favor complete todos los campos requeridos de la factura', 'warning');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('action', 'create');
+        formData.append('numeroFactura', numeroFactura);
+        formData.append('tipoPago', tipoPago);
+        formData.append('telefono', telefono);
+        formData.append('numeroSAP', numeroSAP);
+        formData.append('nombreCliente', nombreCliente);
+        formData.append('productos', JSON.stringify(productosSeleccionados));
+
         const response = await fetch('../controllers/factura_controller.php', {
             method: 'POST',
             body: formData
         });
-        
+
         const result = await response.json();
-        
+        console.log('Server response:', result); // Debug line
+
         if (result.success) {
             showNotification('Factura guardada exitosamente', 'success');
-            hideModal();
-            loadFacturas();
+            document.getElementById('facturaForm').reset();
+            productosSeleccionados = [];
+            actualizarTablaProductos();
+            setTimeout(() => {
+                window.location.href = 'facturas.php';
+            }, 1500);
         } else {
-            showNotification(result.message || 'Error al guardar la factura', 'error');
+            throw new Error(result.message || 'Error desconocido al guardar la factura');
         }
     } catch (error) {
-        console.error('Error:', error);
-        showNotification('Error al procesar la solicitud', 'error');
-    }
-};
-
-const span = document.getElementsByClassName('close')[0];
-
-function showModal() {
-    modal.style.display = 'block';
-    // Clear previous form data
-    document.getElementById('facturaForm').reset();
-    document.getElementById('productosRows').innerHTML = '';
-    addProductRow(); // Add first product row by default
-}
-
-span.onclick = function() {
-    modal.style.display = 'none';
-}
-
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = 'none';
-    }
-}
-
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        modal.style.display = 'none';
-    }
-});
-
-function addProductRow() {
-    const row = document.createElement('div');
-    row.className = 'product-row';
-    row.innerHTML = `
-        <div class="form-group">
-            <select name="productos[]" required>
-                <option value="">Seleccione un producto</option>
-                <!-- Products will be loaded dynamically -->
-            </select>
-            <input type="number" name="cantidades[]" placeholder="Cantidad" min="1" required>
-            <button type="button" class="btn-danger" onclick="this.parentElement.remove()">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-    `;
-    document.getElementById('productosRows').appendChild(row);
-    loadProductsIntoSelect(row.querySelector('select'));
-}
-
-function addProductRow() {
-    const container = document.getElementById('productosRows');
-    const rowDiv = document.createElement('div');
-    rowDiv.className = 'producto-row';
-    rowDiv.innerHTML = `
-        <div class="form-group">
-            <select name="productos[]" required onchange="updatePrice(this)">
-                <option value="">Seleccione un producto</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <input type="number" name="cantidades[]" min="1" required placeholder="Cantidad" onchange="updateTotal()">
-        </div>
-        <div class="form-group">
-            <input type="number" name="precios[]" readonly>
-        </div>
-    `;
-    container.appendChild(rowDiv);
-    loadProductOptions(rowDiv.querySelector('select'));
-}
-
-async function loadProductOptions(select) {
-    try {
-        const response = await fetch('../controllers/producto_controller.php?action=list');
-        const productos = await response.json();
-        
-        productos.forEach(producto => {
-            const option = document.createElement('option');
-            option.value = producto.ID_Producto;
-            option.textContent = producto.Nombre;
-            option.dataset.precio = producto.Precio;
-            select.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-async function loadFacturas() {
-    const spinner = document.getElementById('loading-spinner');
-    const tableBody = document.getElementById('facturasTableBody');
-    
-    try {
-        spinner.style.display = 'flex';
-        tableBody.innerHTML = '';
-        
-        const response = await fetch('../controllers/factura_controller.php?action=list');
-        const facturas = await response.json();
-        
-        if (facturas.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="5">
-                        <div class="empty-state">
-                            <i class="fas fa-file-invoice"></i>
-                            <p>No hay facturas registradas</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        
-        facturas.forEach(factura => {
-            tableBody.innerHTML += `
-                <tr>
-                    <td>${factura.NumeroSAP}</td>
-                    <td>${factura.Fecha}</td>
-                    <td>${factura.Nombre_Completo}</td>
-                    <td>$${parseFloat(factura.Total).toFixed(2)}</td>
-                    <td>
-                        <button onclick="viewDetails(${factura.ID_Factura})" class="btn-secondary">Ver</button>
-                        <button onclick="printFactura(${factura.ID_Factura})" class="btn-primary">Imprimir</button>
-                    </td>
-                </tr>
-            `;
-        });
-    } catch (error) {
-        console.error('Error:', error);
-        showNotification('Error al cargar las facturas', 'error');
-    } finally {
-        spinner.style.display = 'none';
+        console.error('Error detallado:', error);
+        showNotification('Error al guardar la factura: ' + error.message, 'error');
     }
 }
 
@@ -177,10 +233,10 @@ async function viewDetails(facturaId) {
     try {
         const response = await fetch(`../controllers/factura_controller.php?action=get_details&id=${facturaId}`);
         const detalles = await response.json();
-        
+
         let html = '<table><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>';
         let total = 0;
-        
+
         detalles.forEach(detalle => {
             const subtotal = detalle.Cantidad * detalle.PrecioUnitario;
             total += subtotal;
@@ -193,66 +249,53 @@ async function viewDetails(facturaId) {
                 </tr>
             `;
         });
-        
+
         html += `</tbody><tfoot><tr><td colspan="3">Total</td><td>$${total.toFixed(2)}</td></tr></tfoot></table>`;
-        
+
         document.getElementById('detalleContent').innerHTML = html;
-        detalleModal.style.display = 'block';
+        showModalElement(detalleModal);
     } catch (error) {
         console.error('Error:', error);
         alert('Error al cargar los detalles');
     }
 }
 
-// Load facturas when page loads
-document.addEventListener('DOMContentLoaded', loadFacturas);
-
-let productosSeleccionados = [];
-
-function showModal() {
-    document.getElementById('facturaModal').style.display = 'block';
+function hideProductModal() {
+    productoModal.style.display = 'none';
+    document.getElementById('producto').value = '';
+    document.getElementById('cantidad').value = '';
+    document.getElementById('descuento').value = '0';
+    document.getElementById('precio').value = '';
 }
 
-function hideModal() {
-    document.getElementById('facturaModal').style.display = 'none';
-}
-
-function agregarProducto() {
-    const productoId = document.getElementById('producto_id').value;
-    const cantidad = parseInt(document.getElementById('cantidad').value);
-    
-    fetch('../controllers/producto_controller.php?action=get&id=' + productoId)
-        .then(response => response.json())
-        .then(producto => {
-            if (producto) {
-                productosSeleccionados.push({
-                    id: producto.ID_Producto,
-                    nombre: producto.Nombre,
-                    cantidad: cantidad,
-                    precio: producto.Precio,
-                    subtotal: cantidad * producto.Precio
-                });
-                actualizarTablaProductos();
+document.addEventListener('DOMContentLoaded', function() {
+    if (addProductBtn) {
+        addProductBtn.addEventListener('click', () => {
+            if (productosSeleccionados.length >= MAX_PRODUCTOS) {
+                showNotification('Máximo 10 artículos por factura', 'warning');
+                return;
             }
+            showModalElement(productoModal);
         });
-}
+    }
 
-function actualizarTablaProductos() {
-    const tabla = document.getElementById('productosTabla');
-    let html = '';
-    let total = 0;
+    const closeProductModalBtn = productoModal ? productoModal.querySelector('.close') : null;
+    if (closeProductModalBtn) {
+        closeProductModalBtn.addEventListener('click', hideProductModal);
+    }
+
+    loadProductOptions();
+});
+
+
+function updatePrecio() {
+    const select = document.getElementById('producto');
+    const selectedOption = select.options[select.selectedIndex];
     
-    productosSeleccionados.forEach((item, index) => {
-        html += `<tr>
-            <td>${item.nombre}</td>
-            <td>${item.cantidad}</td>
-            <td>$${item.precio}</td>
-            <td>$${item.subtotal}</td>
-            <td><button onclick="eliminarProducto(${index})">Eliminar</button></td>
-        </tr>`;
-        total += item.subtotal;
-    });
-    
-    tabla.innerHTML = html;
-    document.getElementById('totalFactura').textContent = `Total: $${total}`;
+    if (selectedOption && selectedOption.value) {
+        const precio = parseFloat(selectedOption.dataset.precio);
+        document.getElementById('precio').value = precio.toFixed(2);
+    } else {
+        document.getElementById('precio').value = '';
+    }
 }
