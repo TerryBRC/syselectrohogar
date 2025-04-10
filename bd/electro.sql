@@ -1,4 +1,4 @@
-create table electro;
+create database electro;
 use electro;
 CREATE TABLE `productos` (
   `ID_Producto` int NOT NULL AUTO_INCREMENT,
