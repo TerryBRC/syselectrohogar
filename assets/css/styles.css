@@ -8,7 +8,13 @@ body {
 
 /* Navigation */
 .navbar {
-    background: linear-gradient(90deg, #e23c26 0%, #2c9956 100%);
+    background: linear-gradient(135deg, 
+        #ffd8d8 0%,
+        #4a9d4a 25%, /* verde */
+        #e63946 50%, /* rojo */
+        #1a1a1a 75%, /* negro */
+        #c46868 100%
+    );
     padding: 1rem;
     color: white;
     display: flex;
