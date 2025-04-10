@@ -76,5 +76,17 @@ class Factura {
             return false;
         }
     }
+
+    public function getCountByDateRange($startDate, $endDate) {
+        $query = "SELECT COUNT(*) as total FROM facturas 
+                  WHERE Fecha BETWEEN :startDate AND :endDate 
+                  AND Activo = 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':startDate', $startDate);
+        $stmt->bindParam(':endDate', $endDate);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['total'];
+    }
 }
 ?>

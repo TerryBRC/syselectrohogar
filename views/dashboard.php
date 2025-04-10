@@ -34,23 +34,13 @@ $producto = new Producto($db);
         </div>
         
         <div class="dashboard-sidebar">
-            <div class="low-stock-table">
-                <div class="dashboard-card">
-                    <h3>Productos Bajo Stock</h3>
-                    <?php
-                    $lowStockProducts = $producto->getLowStockProducts();
-                    if (empty($lowStockProducts)) {
-                        echo "<p>No hay productos con stock bajo</p>";
-                    } else {
-                        foreach ($lowStockProducts as $prod) {
-                            echo "<div class='alert-item'>";
-                            echo "<span>{$prod['Nombre']}</span>";
-                            echo "<span> {$prod['stock_actual']}</span>";
-                            echo "</div>";
-                        }
-                    }
-                    ?>
-                </div>
+            <div class="dashboard-card">
+                <h3>Productos Bajo Stock</h3>
+                <table id="lowStockTable" class="low-stock-table">
+                    <tbody>
+                        <!-- Contenido dinámico -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

@@ -43,23 +43,23 @@ class Inventario {
         }
     }
 
-    public function getLowStockProducts($threshold = 10) {
-        try {
-            $query = "SELECT COUNT(*) as count FROM productos p 
-                     WHERE (SELECT COALESCE(SUM(CASE 
-                            WHEN TipoMovimiento = 'Entrada' THEN Cantidad 
-                            ELSE -Cantidad END), 0) 
-                           FROM " . $this->table_name . " 
-                           WHERE ID_Producto = p.ID_Producto AND Activo = 1) <= ?";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([$threshold]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $row['count'];
-        } catch (PDOException $e) {
-            error_log("Error getting low stock products: " . $e->getMessage());
-            return 0;
-        }
+    public function getLowStockProducts() {
+        $threshold = defined('STOCK_ALERT_THRESHOLD') ? STOCK_ALERT_THRESHOLD : 10;
+        
+        $query = "SELECT p.ID_Producto, p.Nombre, 
+                  COALESCE(SUM(CASE 
+                      WHEN i.TipoMovimiento = 'Entrada' THEN i.Cantidad 
+                      ELSE -i.Cantidad END), 0) as stock_actual
+                  FROM productos p
+                  LEFT JOIN inventario i ON p.ID_Producto = i.ID_Producto AND i.Activo = 1
+                  WHERE p.Activo = 1
+                  GROUP BY p.ID_Producto, p.Nombre
+                  HAVING stock_actual <= :threshold";
+                  
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':threshold', $threshold, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 ?>
