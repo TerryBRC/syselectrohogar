@@ -101,6 +101,16 @@ function agregarProductoAFactura() {
         return;
     }
 
+    // Calculate total current quantity of all products
+    const currentTotalQuantity = productosSeleccionados.reduce((sum, producto) => sum + producto.cantidad, 0);
+    
+    // Check if new quantity would exceed maximum
+    if (currentTotalQuantity + cantidad > MAX_PRODUCTOS) {
+        const remainingQuantity = MAX_PRODUCTOS - currentTotalQuantity;
+        showNotification(`Solo puede agregar ${remainingQuantity} productos más`, 'warning');
+        return;
+    }
+
     // Validación de stock
     const stockDisponible = parseInt(productoSelect.options[productoSelect.selectedIndex].dataset.stock);
     const existingProductIndex = productosSeleccionados.findIndex(p => p.id === productoSelect.value);
@@ -143,6 +153,7 @@ function agregarProductoAFactura() {
 function actualizarTablaProductos() {
     let html = '';
     let total = 0;
+    let totalCantidad = 0;
 
     productosSeleccionados.forEach((producto, index) => {
         html += `
@@ -160,14 +171,14 @@ function actualizarTablaProductos() {
             </tr>
         `;
         total += producto.subtotal;
+        totalCantidad += producto.cantidad;
     });
 
     productosTableBody.innerHTML = html;
     totalFacturaElement.textContent = `$${total.toFixed(2)}`;
 
-    const productCount = productosSeleccionados.length;
-    addProductBtn.disabled = productCount >= MAX_PRODUCTOS;
-    productosSectionTitle.textContent = `Productos (${productCount}/10 artículos)`;
+    addProductBtn.disabled = totalCantidad >= MAX_PRODUCTOS;
+    productosSectionTitle.textContent = `Productos (${totalCantidad}/10 artículos)`;
 }
 
 function eliminarProducto(index) {
