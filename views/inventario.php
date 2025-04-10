@@ -26,7 +26,13 @@ include_once '../includes/header.php';
                 <th>Factura SAP</th>
             </tr>
         </thead>
+        <tbody id="inventarioTableBody">
+            <!-- JavaScript will populate this -->
+        </tbody>
     </table>
+    <div id="pagination" class="pagination">
+        <!-- JavaScript will populate this -->
+    </div>
 </div>
 
 <!-- Modal -->
@@ -45,7 +51,14 @@ include_once '../includes/header.php';
                 <label for="tipo">Tipo de Movimiento</label>
                 <select id="tipo" name="tipo" required>
                     <option value="Entrada">Entrada</option>
-                    <option value="Salida">Salida</option>
+                    <option value="Traslado PN1">Traslado PN1</option>
+                    <option value="Traslado PN2">Traslado PN2</option>
+                    <option value="Traslado PN3">Traslado PN3</option>
+                    <option value="Traslado PN4">Traslado PN4</option>
+                    <option value="Traslado PN5">Traslado PN5</option>
+                    <option value="Traslado PN6">Traslado PN6</option>
+                    <option value="Traslado Divina">Traslado Divina</option>
+                    <option value="Traslado Posada">Traslado Posada</option>
                 </select>
             </div>
             <div class="form-group">
