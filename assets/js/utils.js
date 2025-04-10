@@ -1,21 +1,28 @@
 function showNotification(message, type = 'success') {
-    const container = document.querySelector('.toast-container') || createToastContainer();
+    const container = document.querySelector('.notification-container') || createNotificationContainer();
     
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = message;
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
     
-    container.appendChild(toast);
+    container.appendChild(notification);
     
+    // Auto-remove after 5 seconds
     setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+
+    // Click to dismiss
+    notification.addEventListener('click', () => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 300);
+    });
 }
 
-function createToastContainer() {
+function createNotificationContainer() {
     const container = document.createElement('div');
-    container.className = 'toast-container';
+    container.className = 'notification-container';
     document.body.appendChild(container);
     return container;
 }

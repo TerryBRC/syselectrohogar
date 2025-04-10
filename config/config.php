@@ -1,9 +1,5 @@
 <?php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'electro');
-define('DB_USER', 'root');
-define('DB_PASS', 'root');
-
+// Remove database configuration since it's in Database class
 define('SITE_URL', 'http://localhost/syselectrohogar');
 define('STOCK_ALERT_THRESHOLD', 10);
 
