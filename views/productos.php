@@ -42,7 +42,9 @@ $producto = new Producto($db);
     </div>
 </div>
 
-<h3 class="mt-4">Productos Inactivos</h3>
+<div class="content-header">
+<h2>Productos Inactivos</h2>
+</div>
 <div class="table-container">
     <table>
         <thead>
