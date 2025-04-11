@@ -36,7 +36,7 @@ class Producto {
             $query = "SELECT p.*, 
                       COALESCE(SUM(CASE 
                           WHEN i.TipoMovimiento = 'Entrada' THEN i.Cantidad
-                          WHEN i.TipoMovimiento = 'Salida' THEN -i.Cantidad
+                          WHEN i.TipoMovimiento LIKE 'Traslado%' OR i.TipoMovimiento = 'Venta' THEN -i.Cantidad
                           ELSE 0
                       END), 0) as stock_actual
                       FROM " . $this->table_name . " p
@@ -178,7 +178,7 @@ class Producto {
             $query = "SELECT i.ID_Producto, 
                     COALESCE(SUM(CASE 
                         WHEN i.TipoMovimiento = 'Entrada' THEN i.Cantidad
-                        WHEN i.TipoMovimiento = 'Salida' THEN -i.Cantidad
+                        WHEN i.TipoMovimiento LIKE 'Traslado%' OR i.TipoMovimiento = 'Venta' THEN -i.Cantidad
                         ELSE 0
                     END), 0) as stock_actual
                     FROM Inventario i 
@@ -201,7 +201,7 @@ class Producto {
             $query = "SELECT p.ID_Producto, p.Nombre,
                     (SELECT COALESCE(SUM(CASE 
                         WHEN i.TipoMovimiento = 'Entrada' THEN i.Cantidad
-                        WHEN i.TipoMovimiento = 'Salida' THEN -i.Cantidad
+                        WHEN i.TipoMovimiento LIKE 'Traslado%' OR i.TipoMovimiento = 'Venta' THEN -i.Cantidad
                         ELSE 0
                     END), 0)
                     FROM Inventario i 
@@ -226,7 +226,7 @@ class Producto {
             $query = "SELECT p.*, 
                     COALESCE(SUM(CASE 
                         WHEN i.TipoMovimiento = 'Entrada' THEN i.Cantidad
-                        WHEN i.TipoMovimiento = 'Salida' THEN -i.Cantidad
+                        WHEN i.TipoMovimiento LIKE 'Traslado%' OR i.TipoMovimiento = 'Venta' THEN -i.Cantidad
                         ELSE 0
                     END), 0) as stock_actual
                     FROM " . $this->table_name . " p

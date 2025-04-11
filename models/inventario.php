@@ -11,7 +11,8 @@ class Inventario {
         try {
             $query = "SELECT COALESCE(SUM(CASE 
                         WHEN TipoMovimiento = 'Entrada' THEN Cantidad 
-                        ELSE -Cantidad END), 0) as Stock 
+                        WHEN TipoMovimiento LIKE 'Traslado%' OR TipoMovimiento = 'Venta' THEN -Cantidad
+                        ELSE 0 END), 0) as Stock 
                      FROM " . $this->table_name . " 
                      WHERE ID_Producto = ? AND Activo = 1";
             
@@ -30,19 +31,20 @@ class Inventario {
             // Check stock if it's not an entry
             if ($data['tipo'] !== 'Entrada') {
                 $currentStock = $this->getCurrentStock($data['producto_id']);
-                if ($currentStock < abs($data['cantidad'])) {
+                if ($currentStock < $data['cantidad']) {
                     throw new Exception("Stock insuficiente. Stock actual: " . $currentStock);
                 }
             }
 
-            $query = "CALL sp_RegisterInventoryMovement(:productId, :movementType, :quantity, :userId, :invoiceId)";
+            $query = "INSERT INTO " . $this->table_name . " 
+                 (ID_Producto, TipoMovimiento, Cantidad, ID_Usuario, Fecha) 
+                 VALUES (:productId, :movementType, :quantity, :userId, NOW())";
             
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':productId', $data['producto_id'], PDO::PARAM_INT);
             $stmt->bindParam(':movementType', $data['tipo'], PDO::PARAM_STR);
             $stmt->bindParam(':quantity', $data['cantidad'], PDO::PARAM_INT);
             $stmt->bindParam(':userId', $_SESSION['user_id'], PDO::PARAM_INT);
-            $stmt->bindValue(':invoiceId', isset($data['factura_id']) ? $data['factura_id'] : null, PDO::PARAM_INT);
             
             return $stmt->execute();
         } catch (Exception $e) {
@@ -96,8 +98,7 @@ class Inventario {
                         (
                             SELECT COALESCE(SUM(CASE 
                                 WHEN TipoMovimiento = 'Entrada' THEN Cantidad
-                                WHEN TipoMovimiento = 'Salida' THEN -Cantidad
-                                ELSE 0
+                                ELSE -Cantidad
                             END), 0)
                             FROM " . $this->table_name . " i2
                             WHERE i2.ID_Producto = i.ID_Producto

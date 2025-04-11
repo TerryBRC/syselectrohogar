@@ -50,14 +50,13 @@ async function handleFormSubmit(e) {
     const cantidad = parseInt(formData.get('cantidad'));
     const productoId = formData.get('producto_id');
 
-    // Check stock for non-entry movements
+    // Solo verificamos stock para movimientos que no sean entrada
     if (tipo !== 'Entrada') {
         const currentStock = await checkStock(productoId);
         if (currentStock < cantidad) {
             showNotification(`Stock insuficiente. Stock actual: ${currentStock}`, 'error');
             return;
         }
-        formData.set('cantidad', -Math.abs(cantidad));
     }
     
     try {
