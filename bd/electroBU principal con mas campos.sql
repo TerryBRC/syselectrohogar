@@ -201,7 +201,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (1,'electro.sqladmin@electrohogar.com','$2y$10$W.krXqN105oyvSUaEB8RJO7asZCuwinsJh0q2SqPT77OuL0HVpaA2','SuperAdmin',1),(2,'admin@electro.com','admin123','administrador',1),(3,'empleado1@electro.com','empleado456','empleado',1),(4,'cliente1@email.com','cliente789','cliente',1),(5,'empleado2@electro.com','trabajador10','empleado',1),(6,'cliente2@email.com','usuario22','cliente',1);
+INSERT INTO `usuarios` VALUES (1,'electro.sqladmin@electrohogar.com','$2y$10$W.krXqN105oyvSUaEB8RJO7asZCuwinsJh0q2SqPT77OuL0HVpaA2','SuperAdmin',1),(2,'admin@electro.com','admin123','Administrador',1),(3,'empleado1@electro.com','empleado456','Vendedor',1),(4,'cliente1@email.com','cliente789','Vendedor',1),(5,'empleado2@electro.com','trabajador10','Vendedor',1),(6,'cliente2@email.com','usuario22','Vendedor',1);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
