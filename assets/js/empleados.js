@@ -36,31 +36,33 @@ empleadoForm.onsubmit = async (e) => {
 const span = document.getElementsByClassName('close')[0];
 
 function showModal() {
-    modal.style.display = 'block';
+    modal.classList.add('active');
 }
-
-span.onclick = function() {
-    modal.style.display = 'none';
-}
-
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Close on ESC key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        modal.style.display = 'none';
-    }
-});
-empleadoForm.reset();
-
 
 function hideModal() {
-    modal.style.display = 'none';
+    modal.classList.remove('active');
+    empleadoForm.reset();
+    empleadoForm.querySelector('[name="action"]').value = 'create';
+    empleadoForm.querySelector('[name="password"]').required = true;
 }
+
+// Update these event listeners
+span.onclick = hideModal;
+window.onclick = function(event) {
+    if (event.target == modal) {
+        hideModal();
+    }
+}
+
+// Update ESC key handler
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        hideModal();
+    }
+});
+
+// Remove this line as it's not needed and could cause issues
+// empleadoForm.reset();
 
 async function loadEmpleados() {
     try {
@@ -102,20 +104,35 @@ async function editarEmpleado(id) {
         const response = await fetch(`../controllers/empleado_controller.php?action=get&id=${id}`);
         const empleado = await response.json();
         
-        document.getElementById('nombre').value = empleado.Nombre;
-        document.getElementById('apellido').value = empleado.Apellido;
-        document.getElementById('dni').value = empleado.DNI;
-        document.getElementById('email').value = empleado.CorreoElectronico;
-        document.getElementById('telefono').value = empleado.Telefono;
-        document.getElementById('direccion').value = empleado.Direccion;
-        document.getElementById('rol').value = empleado.Rol;
+        // Update form values
+        empleadoForm.querySelector('[name="nombre"]').value = empleado.Nombre;
+        empleadoForm.querySelector('[name="apellido"]').value = empleado.Apellido;
+        empleadoForm.querySelector('[name="email"]').value = empleado.CorreoElectronico;
+        empleadoForm.querySelector('[name="telefono"]').value = empleado.Telefono;
+        empleadoForm.querySelector('[name="direccion"]').value = empleado.Direccion;
+        empleadoForm.querySelector('[name="rol"]').value = empleado.Rol;
         
-        showModal();
+        // Update hidden fields
+        empleadoForm.querySelector('[name="action"]').value = 'update';
+        empleadoForm.querySelector('[name="id"]').value = empleado.ID_Empleado;
+        empleadoForm.querySelector('[name="id_usuario"]').value = empleado.ID_Usuario;
+        
+        // Make password optional for updates
+        empleadoForm.querySelector('[name="password"]').required = false;
+        
+        modal.classList.add('active');
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al cargar los datos del empleado');
+        showNotification('Error al cargar los datos del empleado', 'error');
     }
 }
 
-// Load empleados when page loads
+// Update the form reset in hideModal function
+function hideModal() {
+    modal.classList.remove('active');
+    empleadoForm.reset();
+    empleadoForm.querySelector('[name="action"]').value = 'create';
+    empleadoForm.querySelector('[name="password"]').required = true;
+}
+
 document.addEventListener('DOMContentLoaded', loadEmpleados);

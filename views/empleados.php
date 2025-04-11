@@ -44,6 +44,8 @@ $empleado = new Empleado($db);
                 <input type="hidden" name="action" value="create">
                 <input type="hidden" name="id" id="empleadoId">
                 
+                <input type="hidden" name="id_usuario" id="empleadoUserId">
+                
                 <div class="modal-form-grid">
                     <div class="form-group">
                         <label>Nombre:</label>

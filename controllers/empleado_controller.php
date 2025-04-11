@@ -18,6 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response['message'] = 'Error al crear el empleado';
             }
             break;
+
+        case 'update':  // Move update case here
+            if ($empleado->update($_POST)) {
+                $response['success'] = true;
+                $response['message'] = 'Empleado actualizado exitosamente';
+            } else {
+                $response['message'] = 'Error al actualizar el empleado';
+            }
+            break;
     }
 
     header('Content-Type: application/json');
@@ -31,6 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $empleados = $empleado->getAll();
             header('Content-Type: application/json');
             echo json_encode($empleados);
+            exit();
+        
+        case 'get':
+            $id = $_GET['id'] ?? null;
+            if ($id) {
+                $empleadoData = $empleado->getById($id);
+                echo json_encode($empleadoData);
+            }
             exit();
     }
 }
