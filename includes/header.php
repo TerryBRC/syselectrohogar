@@ -24,8 +24,8 @@ if (!isset($_SESSION['user_id'])) {
         </div>
         <div class="nav-links">
             <a href="dashboard.php">Inicio</a>
-            <a href="productos.php">Productos</a>
-            <a href="inventario.php">Inventario</a>
+            <a href="productos.php">Inventario</a>
+            <a href="inventario.php">Movimientos</a>
             <a href="facturas.php">Facturas</a>
             <a href="empleados.php">Empleados</a>
             <a href="reportes.php">Reportes</a>
