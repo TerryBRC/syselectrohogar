@@ -44,46 +44,50 @@ $empleado = new Empleado($db);
                 <input type="hidden" name="action" value="create">
                 <input type="hidden" name="id" id="empleadoId">
                 
-                <div class="form-group">
-                    <label>Nombre:</label>
-                    <input type="text" name="nombre" required>
+                <div class="modal-form-grid">
+                    <div class="form-group">
+                        <label>Nombre:</label>
+                        <input type="text" name="nombre" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Apellido:</label>
+                        <input type="text" name="apellido" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Teléfono:</label>
+                        <input type="tel" name="telefono" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Rol:</label>
+                        <select name="rol" required>
+                            <option value="">Seleccione un rol</option>
+                            <option value="Vendedor">Vendedor</option>
+                            <option value="Administrador">Administrador</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Correo Electrónico:</label>
+                        <input type="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Contraseña:</label>
+                        <input type="password" name="password" required>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Dirección:</label>
+                        <input type="text" name="direccion" required>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Apellido:</label>
-                    <input type="text" name="apellido" required>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-primary">Guardar</button>
                 </div>
-                
-                <div class="form-group">
-                    <label>Correo Electrónico:</label>
-                    <input type="email" name="email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Contraseña:</label>
-                    <input type="password" name="password" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Teléfono:</label>
-                    <input type="tel" name="telefono" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Dirección:</label>
-                    <input type="text" name="direccion" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Rol:</label>
-                    <select name="rol" required>
-                        <option value="">Seleccione un rol</option>
-                        <option value="Vendedor">Vendedor</option>
-                        <option value="Administrador">Administrador</option>
-                    </select>
-                </div>
-                
-                <button type="submit" class="btn-primary">Guardar</button>
             </form>
         </div>
     </div>

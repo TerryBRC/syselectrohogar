@@ -243,14 +243,35 @@ th, td {
     background-color: rgba(0,0,0,0.5);
 }
 
+.modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .modal-content {
     background-color: #fefefe;
-    margin: 10% auto;
     padding: 20px;
     border-radius: 8px;
-    width: 80%;
-    max-width: 500px;
+    width: 600px;  /* Aumentamos el ancho */
     position: relative;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin: auto; /* Esto ayuda al centrado */
+}
+
+.modal-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.modal-footer {
+    margin-top: 15px;
+    text-align: right;
 }
 
 .close {
