@@ -23,6 +23,7 @@ $empleado = new Empleado($db);
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
+                <th>Email</th>
                 <th>Teléfono</th>
                 <th>Dirección</th>
                 <th>Rol</th>
@@ -42,37 +43,46 @@ $empleado = new Empleado($db);
             <form id="empleadoForm">
                 <input type="hidden" name="action" value="create">
                 <input type="hidden" name="id" id="empleadoId">
+                
                 <div class="form-group">
-                    <label for="nombre">Nombre</label>
-                    <input type="text" id="nombre" name="nombre" required>
+                    <label>Nombre:</label>
+                    <input type="text" name="nombre" required>
                 </div>
+                
                 <div class="form-group">
-                    <label for="apellido">Apellido</label>
-                    <input type="text" id="apellido" name="apellido" required>
+                    <label>Apellido:</label>
+                    <input type="text" name="apellido" required>
                 </div>
+                
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
+                    <label>Correo Electrónico:</label>
+                    <input type="email" name="email" required>
                 </div>
+                
                 <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="password" required>
+                    <label>Contraseña:</label>
+                    <input type="password" name="password" required>
                 </div>
+                
                 <div class="form-group">
-                    <label for="telefono">Teléfono</label>
-                    <input type="tel" id="telefono" name="telefono" required>
+                    <label>Teléfono:</label>
+                    <input type="tel" name="telefono" required>
                 </div>
+                
                 <div class="form-group">
-                    <label for="direccion">Dirección</label>
-                    <textarea id="direccion" name="direccion" required></textarea>
+                    <label>Dirección:</label>
+                    <input type="text" name="direccion" required>
                 </div>
+                
                 <div class="form-group">
-                    <label for="rol">Rol</label>
-                    <select id="rol" name="rol" required>
-                        <option value="empleado">Empleado</option>
-                        <option value="admin">Administrador</option>
+                    <label>Rol:</label>
+                    <select name="rol" required>
+                        <option value="">Seleccione un rol</option>
+                        <option value="Vendedor">Vendedor</option>
+                        <option value="Administrador">Administrador</option>
                     </select>
                 </div>
+                
                 <button type="submit" class="btn-primary">Guardar</button>
             </form>
         </div>

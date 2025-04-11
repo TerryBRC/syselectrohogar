@@ -74,22 +74,26 @@ async function loadEmpleados() {
             tbody.innerHTML += `
                 <tr>
                     <td>${empleado.ID_Empleado}</td>
-                    <td>${empleado.Nombre}</td>
-                    <td>${empleado.Apellido}</td>
-                    <td>${empleado.DNI}</td>
-                    <td>${empleado.CorreoElectronico}</td>
-                    <td>${empleado.Telefono}</td>
-                    <td>${empleado.Rol}</td>
-                    <td>
-                        <button onclick="editarEmpleado(${empleado.ID_Empleado})" class="btn-secondary">Editar</button>
-                        <button onclick="eliminarEmpleado(${empleado.ID_Empleado})" class="btn-danger">Eliminar</button>
+                    <td>${empleado.Nombre || ''}</td>
+                    <td>${empleado.Apellido || ''}</td>
+                    <td>${empleado.CorreoElectronico || ''}</td>
+                    <td>${empleado.Telefono || ''}</td>
+                    <td>${empleado.Direccion || ''}</td>
+                    <td>${empleado.Rol || ''}</td>
+                    <td class="actions">
+                        <button onclick="editarEmpleado(${empleado.ID_Empleado})" class="btn-secondary">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button onclick="confirmarEliminar(${empleado.ID_Empleado})" class="btn-danger">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
                     </td>
                 </tr>
             `;
         });
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al cargar los empleados');
+        showNotification('Error al cargar los empleados', 'error');
     }
 }
 

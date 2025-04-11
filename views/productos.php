@@ -89,7 +89,6 @@ $producto = new Producto($db);
             
             <div class="form-buttons">
                 <button type="submit" class="btn-primary">Guardar</button>
-                <button type="button" class="btn-secondary" onclick="hideModal()">Cancelar</button>
             </div>
         </form>
     </div>
