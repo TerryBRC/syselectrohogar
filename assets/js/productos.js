@@ -371,7 +371,6 @@ function updatePagination() {
     pagination.innerHTML = html;
 }
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
 });

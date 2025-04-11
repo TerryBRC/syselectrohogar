@@ -82,19 +82,21 @@ async function handleFormSubmit(e) {
 }
 
 // Show modal and load products
+// Update modal functions
 function showModal() {
     const modal = document.getElementById('inventarioModal');
     if (modal) {
-        modal.style.display = 'block';
+        modal.classList.add('active');
         loadProductos(); // Reload products when modal opens
     }
 }
 
-// Hide modal
 function hideModal() {
     const modal = document.getElementById('inventarioModal');
     if (modal) {
-        modal.style.display = 'none';
+        modal.classList.remove('active');
+        const form = document.getElementById('inventarioForm');
+        if (form) form.reset();
     }
 }
 
