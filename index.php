@@ -15,8 +15,18 @@ if (isset($_SESSION['user_id'])) {
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
+    <!-- Add these bubbles before the login container -->
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+
     <div class="login-container">
-        <h1>Electro Hogar</h1>
+        <div class="brand" style="align-items: center;
+    justify-content: center;">
+            <img src="assets/img/logo.png" alt="Electro Hogar">
+        </div>
         <form action="controllers/auth_controller.php" method="POST">
             <input type="hidden" name="action" value="login">
             <div class="form-group">
@@ -27,7 +37,7 @@ if (isset($_SESSION['user_id'])) {
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <button type="submit">Iniciar Sesión</button>
+            <button type="submit" class="btn-primary">Iniciar Sesión</button>
             <?php if(isset($_GET['error'])): ?>
                 <div class="alert alert-danger">
                     Credenciales incorrectas

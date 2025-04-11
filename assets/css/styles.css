@@ -2,8 +2,16 @@
 body {
     margin: 0;
     padding: 0;
+    min-height: 100vh;
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    background: linear-gradient(135deg, 
+        #e63946 0%,    /* rojo */
+        #ffffff 35%,   /* blanco */
+        #1a1a1a 65%,  /* negro */
+        #4a9d4a 100%  /* verde */
+    );
+    overflow: hidden;
+    position: relative;
 }
 
 /* Navigation */
@@ -800,3 +808,42 @@ input[readonly] {
         overflow-x: auto;
     }
 }
+
+.login-container {
+    position: relative;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin: 100px auto;
+    z-index: 1;
+    backdrop-filter: blur(8px);
+}
+
+.login-container h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 2rem;
+}
+
+/* Floating Bubbles Animation */
+@keyframes float {
+    0% { transform: translateY(0) translateX(0); }
+    50% { transform: translateY(-20px) translateX(10px); }
+    100% { transform: translateY(0) translateX(0); }
+}
+
+.bubble {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.bubble:nth-child(1) { width: 80px; height: 80px; left: 10%; top: 40%; animation: float 8s infinite; }
+.bubble:nth-child(2) { width: 60px; height: 60px; left: 20%; top: 80%; animation: float 10s infinite; }
+.bubble:nth-child(3) { width: 90px; height: 90px; left: 80%; top: 20%; animation: float 6s infinite; }
+.bubble:nth-child(4) { width: 50px; height: 50px; left: 50%; top: 60%; animation: float 7s infinite; }
+.bubble:nth-child(5) { width: 70px; height: 70px; left: 30%; top: 30%; animation: float 9s infinite; }
