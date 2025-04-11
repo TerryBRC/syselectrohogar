@@ -37,8 +37,14 @@ $producto = new Producto($db);
             <div class="dashboard-card">
                 <h3>Productos Bajo Stock</h3>
                 <table id="lowStockTable" class="low-stock-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Stock Actual</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        <!-- Contenido dinámico -->
+                        <!-- JavaScript will populate this -->
                     </tbody>
                 </table>
             </div>

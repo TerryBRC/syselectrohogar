@@ -41,22 +41,35 @@ async function fetchDashboardData() {
 }
 
 function updateLowStockTable(table, products) {
-    if (!products.length) {
-        table.innerHTML = `
+    const tbody = table.querySelector('tbody');
+    
+    if (!products || !products.length) {
+        tbody.innerHTML = `
             <tr>
-                <td colspan="2" class="text-center">No hay productos con stock bajo</td>
+                <td colspan="3" class="text-center">No hay productos con stock bajo</td>
             </tr>
         `;
         return;
     }
 
-    table.innerHTML = products.map(product => `
-        <tr>
+    tbody.innerHTML = products.map(product => `
+        <tr class="${product.stock_actual <= 5 ? 'critical-stock' : 'low-stock'}">
             <td>${product.Nombre}</td>
             <td class="text-center">${product.stock_actual}</td>
         </tr>
     `).join('');
 }
+
+// Add some CSS styles
+const style = document.createElement('style');
+style.textContent = `
+    .low-stock { background-color: #fff3cd; }
+    .critical-stock { background-color: #f8d7da; }
+    .low-stock-table { width: 100%; border-collapse: collapse; }
+    .low-stock-table th, .low-stock-table td { padding: 8px; border: 1px solid #dee2e6; }
+    .low-stock-table th { background-color: #f8f9fa; }
+`;
+document.head.appendChild(style);
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', fetchDashboardData);

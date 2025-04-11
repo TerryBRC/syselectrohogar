@@ -38,13 +38,15 @@ try {
         $facturasDelMes = $factura->getCountByDateRange($firstDayOfMonth, $lastDayOfMonth);
 
         // Get low stock products
-        $productosStockBajo = $inventario->getLowStockProducts();
+        $stockThreshold = defined('STOCK_ALERT_THRESHOLD') ? STOCK_ALERT_THRESHOLD : 10;
+        $productosStockBajo = $inventario->getLowStockProducts($stockThreshold);
 
         echo json_encode([
             'success' => true,
             'totalProductos' => $totalProductos,
             'facturasDelMes' => $facturasDelMes,
-            'productosStockBajo' => $productosStockBajo
+            'productosStockBajo' => $productosStockBajo,
+            'stockThreshold' => $stockThreshold
         ]);
     } else {
         echo json_encode([

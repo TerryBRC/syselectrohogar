@@ -56,20 +56,27 @@ class Inventario {
     public function getLowStockProducts() {
         $threshold = defined('STOCK_ALERT_THRESHOLD') ? STOCK_ALERT_THRESHOLD : 10;
         
-        $query = "SELECT p.ID_Producto, p.Nombre, 
-                  COALESCE(SUM(CASE 
-                      WHEN i.TipoMovimiento = 'Entrada' THEN i.Cantidad 
-                      ELSE -i.Cantidad END), 0) as stock_actual
-                  FROM productos p
-                  LEFT JOIN inventario i ON p.ID_Producto = i.ID_Producto AND i.Activo = 1
-                  WHERE p.Activo = 1
-                  GROUP BY p.ID_Producto, p.Nombre
-                  HAVING stock_actual <= :threshold";
-                  
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':threshold', $threshold, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $query = "SELECT p.ID_Producto, p.Nombre, 
+                      COALESCE(SUM(CASE 
+                          WHEN i.TipoMovimiento = 'Entrada' THEN i.Cantidad 
+                          WHEN i.TipoMovimiento LIKE 'Traslado%' OR i.TipoMovimiento = 'Venta' THEN -i.Cantidad
+                          ELSE 0 END), 0) as stock_actual
+                      FROM productos p
+                      LEFT JOIN inventario i ON p.ID_Producto = i.ID_Producto AND i.Activo = 1
+                      WHERE p.Activo = 1
+                      GROUP BY p.ID_Producto, p.Nombre
+                      HAVING stock_actual <= :threshold
+                      ORDER BY stock_actual ASC";
+                      
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':threshold', $threshold, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error getting low stock products: " . $e->getMessage());
+            return [];
+        }
     }
 
     public function getTotalMovements() {
